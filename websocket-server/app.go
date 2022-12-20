@@ -66,6 +66,47 @@ func manageNewConnection(c *gin.Context) {
 
 func main() {
 
+	// websocket-client                                              websocket-server
+	//   (reactjs)                                                        (Go)
+	//____________________                                        ___________________________________________________
+	//                    |                                      |
+	//              Make  |                                      |
+	//              post ------------- POST /connection ------------> (check secret)                     S
+	//                    |               (secret)               |       * N ---> END
+	//                    |                                      |                                       E
+	//           make    <-------------- POST response ----------------- * Y
+	//         websocket  |               (socket port)          |                                       R
+	//           conn     |                                      |
+	//         (browser) ----------- Websocket connection ----------> incomingWebsocketConn              V
+	//                    |                                      |           |
+	//                    |                                      |           V                           E
+	//     C              |                                      |      (manage conn)
+	//                    |                                      |        * KO ----> END                 R
+	//     L              |                                      |        * OK
+	//                    |                                      |           |
+	//     I              |                                      |           V
+	//                    |                                      |         func handle() {
+	//     E              |                                      |           * players number exceded ---> END
+	//                    |                                      |           * (Player registration)
+	//     N              |                                      |              * KO ---> END
+	//                    |                                      |              * OK
+	//     T              |   *** BIDIRECTIONAL CONNECTION ***   |                |
+	//                    |   /                              /   |                V
+	//                    |   /                              /   |            * Player {
+	//    ws.onmessage <----------- << possible message << ------------------------ * out ===> func emit()
+	// HangleMethod (map) |   /                              /   |                (output messages players's channel)
+	//                    |   /                              /   |             }
+	//   ws.send(msg) ------------- >> possible message >> ------------------> * websocket event
+	//                    |   /                              /   |                    | (pool)
+	//                    |   /                              /   |                    V
+	//                    |   ********************************   |               func Schedule() {
+	//                    |                                      |                  * Receive -> (switch messages)
+	//                    |                                      |                }
+	//                    |                                      |           }
+	//                    |                                      |
+	//____________________|                                      |______________________________________________________
+	//
+
 	var (
 		//exit = make(chan struct{})   ----> NOT NEEDED (more information at bottom)
 		resumerWaiter sync.WaitGroup
@@ -137,18 +178,18 @@ func main() {
 		}
 		// Create netpoll event descriptor for conn.
 		// We want to handle only read events of it.
-		desc := netpoll.Must(netpoll.HandleRead(conn))
+		eachPlayerWebsocketConn := netpoll.Must(netpoll.HandleRead(conn))
 
-		player.desc = desc
+		player.connDescriptor = eachPlayerWebsocketConn
 
 		// Subscribe to events about conn.
-		poller.Start(desc, func(ev netpoll.Event) {
+		poller.Start(eachPlayerWebsocketConn, func(ev netpoll.Event) {
 			if ev&(netpoll.EventReadHup|netpoll.EventHup) != 0 {
 				// When ReadHup or Hup received, this mean that client has
 				// closed at least write end of the connection or connections
 				// itself. So we want to stop receive events about such conn
 				// and remove it from the game registry.
-				poller.Stop(desc)
+				poller.Stop(eachPlayerWebsocketConn)
 				game.Remove(player)
 				return
 			}
@@ -162,7 +203,7 @@ func main() {
 				if err := game.Receive(player); err != nil {
 					// When receive failed, we can only disconnect broken
 					// connection and stop to receive events about it.
-					poller.Stop(desc)
+					poller.Stop(eachPlayerWebsocketConn)
 					game.Remove(player)
 				}
 			})
@@ -172,8 +213,8 @@ func main() {
 
 	// Create netpoll descriptor for the listener.
 	// We use OneShot here to manually resume events stream when we want to.
-	acceptDesc := netpoll.Must( //HELPER FOR PREVENTING ERROR
-		netpoll.HandleListener( //DESCRIPTOR FOR LISTENER ln, AND AVAILABLES EVENTS FOR THIS LISTENER
+	incomingWebsocketConn := netpoll.Must( //HELPER FOR PREVENTING ERROR
+		netpoll.HandleListener( //DESCRIPTOR FOR LISTENER ln, AND AVAILABLE EVENTS FOR THIS LISTENER
 			ln,
 			netpoll.EventRead|netpoll.EventOneShot,
 		))
@@ -181,10 +222,11 @@ func main() {
 	resumer := func() {
 		//executing Resume since other context prevents deadlock inside poller.Start
 		resumerWaiter.Wait()
-		poller.Resume(acceptDesc)
+		poller.Resume(incomingWebsocketConn)
 	}
 
-	poller.Start(acceptDesc, func(e netpoll.Event) {
+	//Incoming websocket connection
+	poller.Start(incomingWebsocketConn, func(e netpoll.Event) {
 
 		resumerWaiter.Add(1)
 

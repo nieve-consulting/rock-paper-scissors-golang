@@ -63,7 +63,7 @@ func initGame(pool *gopool.Pool, poller *netpoll.Poller) *Game {
 }
 
 func (g *Game) socketDisconnect(player *Player) {
-	(*(g.poller)).Stop(player.desc)
+	(*(g.poller)).Stop(player.connDescriptor)
 	g.Remove(player)
 }
 
