@@ -16,12 +16,12 @@ In adition, you can change your player nick name.
 
 ### For launching it, first, you have to install all dependences:
 >
-> - cd websocket_and_api
+> - cd rock-paper-scissors-golang
 > - npm run install-complete
 
 ### Now, you can run it:
 
-> - cd websocket_and_api
+> - cd rock-paper-scissors-golang
 > - npm start
 
 ### For developing, and debugging better, you can run this two services separately:
@@ -31,12 +31,12 @@ Open one terminal and type:
 
 Now, open another terminal, and type:
 
-> - cd websocket_and_api
+> - cd rock-paper-scissors-golang
 > - npm run start-react
 
 ### For getting and running a production app, follow this steps:
 
-> - cd websocket_and_api
+> - cd rock-paper-scissors-golang
 > - npm run build
 
 Now, you can run it:
