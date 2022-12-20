@@ -14,6 +14,11 @@ In adition, you can change your player nick name.
 
 **Important: not tested in games with more than two players**
 
+### If you don't have Go installed, please, install it before.
+In MacOs:
+>
+> - brew install golang
+
 ### For launching it, first, you have to install all dependences:
 >
 > - cd rock-paper-scissors-golang
