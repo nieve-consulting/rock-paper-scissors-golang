@@ -13,19 +13,21 @@ import (
 func (p *Player) readRequest() (*Request, error) {
 	p.io.Lock()
 	defer p.io.Unlock()
-
 	h, r, err := wsutil.NextReader(p.conn, ws.StateServerSide)
 	if err != nil {
 		return nil, err
 	}
 	if h.OpCode.IsControl() {
+		//DETECT REFRESHED OR CLOSED BROWSER,
+		//SO PLAYER MUST BE UNREGISTERED
 		return nil, wsutil.ControlFrameHandler(p.conn, ws.StateServerSide)(h, r)
-	}
 
+	}
 	req := &Request{}
 	decoder := json.NewDecoder(r)
+
 	if err := decoder.Decode(req); err != nil {
-		return nil, err
+		return req, nil
 	}
 
 	return req, nil

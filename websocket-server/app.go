@@ -3,7 +3,6 @@ package main
 import (
 	//common
 	"log"
-	"websocket_server_rock_paper_scissors/websocket-server/gopool"
 
 	//websocket
 	"flag"
@@ -12,6 +11,7 @@ import (
 	"net/http"
 	"sync"
 	"time"
+	"websocket_server_rock_paper_scissors/gopool"
 
 	"github.com/gobwas/ws"
 	"github.com/google/uuid"
@@ -84,6 +84,12 @@ func manageNewConnection(c *gin.Context) {
 
 func main() {
 
+	var (
+		//exit = make(chan struct{})   ----> NOT NEEDED (more information at bottom)
+		//pollerAcceptMu sync.Mutex
+		resumerWaiter sync.WaitGroup
+	)
+
 	// //REST API router configuration ///
 	router := gin.Default()
 	router.Use(cors.Default())
@@ -132,6 +138,15 @@ func main() {
 		}
 
 		log.Printf("%s: established websocket connection: %+v", nameConn(conn), hs)
+
+		var numberOfPlayers = len(game.players)
+
+		if numberOfPlayers >= 2 { // RESTRICTION: 2 PLAYERS
+			log.Print("accept error: number of players exceded")
+			//defer func() { accept <- nil }()
+			conn.Close()
+			return
+		}
 
 		// Register incoming player in game.
 		player := game.Register(uuid.New().String(), safeConn, pool)
@@ -182,13 +197,18 @@ func main() {
 			netpoll.EventRead|netpoll.EventOneShot,
 		))
 
-	poller.Start(acceptDesc, func(e netpoll.Event) {
-		var numberOfPlayers = len(game.players)
+	resumer := func() {
+		//executing Resume since other context prevents deadlock inside poller.Start
+		resumerWaiter.Wait()
+		poller.Resume(acceptDesc)
+	}
 
-		if numberOfPlayers > 2 { // RESTRICTION: 2 PLAYERS
-			log.Fatalf("accept error: number of players exceded")
-			return
-		}
+	poller.Start(acceptDesc, func(e netpoll.Event) {
+
+		resumerWaiter.Add(1)
+
+		go resumer()
+
 		err := pool.ScheduleTimeout(time.Millisecond, func() { //EXECUTE THIS FUNCTION EVERY time.Millisecond
 			conn, err := ln.Accept()
 			if err != nil {
@@ -212,8 +232,12 @@ func main() {
 			log.Fatalf("accept error: %v", err)
 		}
 
-		poller.Resume(acceptDesc) ///////TODO: POSSIBLE DEADLOCK
+		resumerWaiter.Done()
+
 	})
 
 	router.Run(":8080")
+
+	//NOT NEEDED BECAUSE router.Run keeps app running
+	//<-exit
 }

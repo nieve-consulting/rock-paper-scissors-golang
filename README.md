@@ -2,7 +2,7 @@
 
 **Important: this project is in progress. This is not a final (production) software. It's a development test**
 
-Based on: https://github.com/lukemaster/rock-paper-scissors
+Based on: https://github.com/lukemaster/rock-paper-scissors and https://github.com/gobwas/ws
 
 This software is composed by a Go server, and a reactjs client application.
 
@@ -16,24 +16,32 @@ In adition, you can change your player nick name.
 
 ### For launching it, first, you have to install all dependences:
 >
-> - cd server-socket-io
-> - npm install
+> - cd websocket_and_api
+> - npm run install-complete
 
 ### Now, you can run it:
 
-> - cd websocket-client
-> - npm run rps
+> - cd websocket_and_api
+> - npm start
 
 ### For developing, and debugging better, you can run this two services separately:
 
 Open one terminal and type:
-> - cd websocket-server
-> - go run *.go
+> - npm run server
 
 Now, open another terminal, and type:
 
-> - cd websocket-client
-> - npm start
+> - cd websocket_and_api
+> - npm run start-react
+
+### For getting and running a production app, follow this steps:
+
+> - cd websocket_and_api
+> - npm run build
+
+Now, you can run it:
+
+> - npm run start-built
 
 
 Good Luck!
