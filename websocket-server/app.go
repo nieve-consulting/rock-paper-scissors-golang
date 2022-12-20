@@ -34,7 +34,7 @@ type Player struct {
 	Score        int
 	RoundScore   int
 	Result       uint8
-	Results      map[uint]Object //map[string]interface{}
+	Results      map[uint]Object
 	Nickname     string
 	desc         *netpoll.Desc
 }
@@ -86,7 +86,6 @@ func main() {
 
 	var (
 		//exit = make(chan struct{})   ----> NOT NEEDED (more information at bottom)
-		//pollerAcceptMu sync.Mutex
 		resumerWaiter sync.WaitGroup
 	)
 
