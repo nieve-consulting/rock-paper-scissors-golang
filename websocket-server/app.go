@@ -6,7 +6,6 @@ import (
 
 	//websocket
 	"flag"
-	"io"
 	"net"
 	"net/http"
 	"sync"
@@ -21,23 +20,6 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
-
-type Player struct {
-	Uuid         string
-	io           sync.Mutex
-	conn         io.ReadWriteCloser
-	out          chan []byte
-	pool         *gopool.Pool
-	mu           sync.RWMutex
-	MasterPlayer bool
-	Choice       int8
-	Score        int
-	RoundScore   int
-	Result       uint8
-	Results      map[uint]Object
-	Nickname     string
-	desc         *netpoll.Desc
-}
 
 type connectionInstance struct {
 	Secret string
