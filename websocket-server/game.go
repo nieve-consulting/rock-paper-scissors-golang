@@ -7,7 +7,7 @@ import (
 	"net"
 	"reflect"
 	"strconv"
-	"websocket_server_rock_paper_scissors/websocket-server/gopool"
+	"websocket_server_rock_paper_scissors/gopool"
 
 	"github.com/mailru/easygo/netpoll"
 )
@@ -63,7 +63,7 @@ func initGame(pool *gopool.Pool, poller *netpoll.Poller) *Game {
 }
 
 func (g *Game) socketDisconnect(player *Player) {
-	(*(g.poller)).Stop(player.desc)
+	(*(g.poller)).Stop(player.connDescriptor)
 	g.Remove(player)
 }
 
@@ -238,7 +238,7 @@ func (g *Game) broadCastNewGame() {
 	g.currentState = "restarting-game"
 
 	for _, player := range g.players {
-		player := player // For closure.//TODO
+		player := player // For closure.
 		g.pool.Schedule(func() {
 			player.emit("restart-game", Object{})
 			g.socketDisconnect(player)
@@ -356,16 +356,26 @@ func (g *Game) socketOnRestartGame() {
 // Receive and reads next message from player.
 // It blocks until full message received.
 func (g *Game) Receive(p *Player) error {
+
 	req, err := p.readRequest()
+
 	if err != nil {
-		log.Fatal(err)
-		p.conn.Close()
-		return err
+		if err.Error() == "ws closed: 1001 " {
+			//PREVENT REFRESHED OR CLOSED BROWSER,
+			//PLAYER UNREGISTERING
+			g.socketDisconnect(p)
+			return nil
+		} else {
+			log.Fatal(err)
+			p.conn.Close()
+			return err
+		}
 	}
 	if req == nil {
 		// Handled some control message.
 		return nil
 	}
+
 	switch req.Method {
 	case "your-uuid-ACK":
 		g.yourUuidAck(p)

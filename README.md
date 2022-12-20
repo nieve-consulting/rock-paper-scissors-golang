@@ -2,7 +2,7 @@
 
 **Important: this project is in progress. This is not a final (production) software. It's a development test**
 
-Based on: https://github.com/lukemaster/rock-paper-scissors
+Based on: https://github.com/lukemaster/rock-paper-scissors and https://github.com/gobwas/ws
 
 This software is composed by a Go server, and a reactjs client application.
 
@@ -14,26 +14,39 @@ In adition, you can change your player nick name.
 
 **Important: not tested in games with more than two players**
 
+### If you don't have Go installed, please, install it before.
+In MacOs:
+>
+> - brew install golang
+
 ### For launching it, first, you have to install all dependences:
 >
-> - cd server-socket-io
-> - npm install
+> - cd rock-paper-scissors-golang
+> - npm run install-complete
 
 ### Now, you can run it:
 
-> - cd websocket-client
-> - npm run rps
+> - cd rock-paper-scissors-golang
+> - npm start
 
 ### For developing, and debugging better, you can run this two services separately:
 
 Open one terminal and type:
-> - cd websocket-server
-> - go run *.go
+> - npm run server
 
 Now, open another terminal, and type:
 
-> - cd websocket-client
-> - npm start
+> - cd rock-paper-scissors-golang
+> - npm run start-react
+
+### For getting and running a production app, follow this steps:
+
+> - cd rock-paper-scissors-golang
+> - npm run build
+
+Now, you can run it:
+
+> - npm run start-built
 
 
 Good Luck!
