@@ -54,7 +54,7 @@ func (p *Player) readRequest() (*Request, error) {
 	return req, nil
 }
 
-func (p *Player) writeErrorTo(req *Request, err Object) error {
+func (p *Player) writeErrorTo(req *Request, err string) error {
 	return p.write(Error{
 		ID:    req.ID,
 		Error: err,

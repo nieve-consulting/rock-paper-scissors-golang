@@ -102,13 +102,20 @@ class Signup extends Component {
 
             // Notice
             if (msg.id === 0) {
-              if (this.handleMethod[msg.method]) {
-                let params = {}
-                if (msg.params) {
-                  params = msg.params
+              if(msg.method){
+                if (this.handleMethod[msg.method]) {
+                  let params = {}
+                  if (msg.params) {
+                    params = msg.params
+                  }
+                  this.handleMethod[msg.method](params)
+                  return
                 }
-                this.handleMethod[msg.method](params)
-                return
+              } else {
+                if(msg.error) {
+                  console.error(msg.error)
+                  this.handleFatalError()
+                }
               }
               console.warn(`no handler for method: ${msg.method}`)
               return
@@ -194,7 +201,6 @@ class Signup extends Component {
   }
 
   handleYourUuid = data => {
-    console.log('bla')
     this.uuid = data?.uuid
     this.emit('your-uuid-ACK', {params: this.uuid})
   }
@@ -253,6 +259,7 @@ class Signup extends Component {
     'show-final-score': this.handleShowFinalScore,
     result: this.handleResult,
     'restart-game': this.handleRestartGame,
+    'fatal-error': this.handleFatalError,
   }
 
   emit = (method, parameters) => {

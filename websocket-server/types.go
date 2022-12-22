@@ -17,5 +17,5 @@ type Response struct {
 
 type Error struct {
 	ID    int    `json:"id"`
-	Error Object `json:"error"`
+	Error string `json:"error"`
 }

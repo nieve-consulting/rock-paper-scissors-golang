@@ -390,9 +390,7 @@ func (g *Game) Receive(p *Player) error {
 	case "game-setup":
 		g.gameSetup(p)
 	default:
-		return p.writeErrorTo(req, Object{
-			"error": "Received message not implemented",
-		})
+		return p.writeErrorTo(req, "Received message not implemented")
 	}
 	return nil
 }
