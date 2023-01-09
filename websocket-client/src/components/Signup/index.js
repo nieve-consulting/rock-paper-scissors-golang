@@ -60,9 +60,7 @@ class Signup extends Component {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        Secret: "LET'S_PLAY",
-        Name: 'Yoyo',
-        Rounds: 2,
+        Secret: "LET'S_PLAY"
       }),
     })
       .then(res => res.json())

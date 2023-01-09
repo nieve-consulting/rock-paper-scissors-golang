@@ -86,8 +86,6 @@ type Result struct {
 */
 type connectionInstance struct {
 	Secret string
-	Name   string
-	Rounds int8
 }
 
 /*****************************************/
