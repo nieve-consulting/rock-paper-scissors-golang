@@ -89,6 +89,7 @@ class Signup extends Component {
               resolve(ws)
             }
           }
+          const methodKeys = Object.keys(this.handleMethod)
           ws.onmessage = s => {
             let msg
             try {
@@ -101,12 +102,13 @@ class Signup extends Component {
             // Notice
             if (msg.id === 0) {
               if(msg.method){
-                if (this.handleMethod[msg.method]) {
+                const method = msg.method
+                if (methodKeys.indexOf(method) >= 0) {
                   let params = {}
                   if (msg.params) {
                     params = msg.params
                   }
-                  this.handleMethod[msg.method](params)
+                  this.handleMethod[method](params)
                   return
                 }
               } else {
@@ -115,7 +117,7 @@ class Signup extends Component {
                   this.handleFatalError()
                 }
               }
-              console.warn(`no handler for method: ${msg.method}`)
+              console.warn(`no handler for method`)
               return
             }
 
