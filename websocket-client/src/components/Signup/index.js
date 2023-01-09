@@ -195,7 +195,7 @@ class Signup extends Component {
   }
 
   handleFatalError = () => {
-    this.setState({gameState: 'fatal-error'})
+    this.setState({letsGame: false, gameState: 'fatal-error'})
   }
 
   handleYourUuid = data => {
