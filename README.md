@@ -29,7 +29,7 @@ In MacOs:
 > - cd rock-paper-scissors-golang
 > - npm start
 
-### For developing, and debugging better, you can run this two services separately:
+### For developing, and debugging better, you can run these two services separately:
 
 Open one terminal and type:
 > - npm run server
