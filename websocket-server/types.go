@@ -19,11 +19,6 @@ type Request struct {
 	Params Object `json:"params"`
 }
 
-type Response struct {
-	ID     int    `json:"id"`
-	Result Object `json:"result"`
-}
-
 type Error struct {
 	ID    int    `json:"id"`
 	Error string `json:"error"`
