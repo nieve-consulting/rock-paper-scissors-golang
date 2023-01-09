@@ -26,27 +26,6 @@ var gameStates = []string{
 
 var rounds uint = 1
 
-type Game struct {
-	//mu sync.RWMutex --> MOVED TO PLAYER
-	//numberOfPlayers uint
-	players                    map[string]*Player
-	playersRemaining           int8
-	rounds                     int
-	currentState               string
-	restartGamePlayersNotified uint
-	results                    map[int]Result
-
-	pool   *gopool.Pool
-	poller *netpoll.Poller
-}
-
-type Result struct {
-	A    string
-	B    string
-	win  string
-	lose string
-}
-
 func initGame(pool *gopool.Pool, poller *netpoll.Poller) *Game {
 	game := &Game{
 		pool:                       pool,
@@ -390,9 +369,7 @@ func (g *Game) Receive(p *Player) error {
 	case "game-setup":
 		g.gameSetup(p)
 	default:
-		return p.writeErrorTo(req, Object{
-			"error": "Received message not implemented",
-		})
+		return p.writeErrorTo(req, "Received message not implemented")
 	}
 	return nil
 }

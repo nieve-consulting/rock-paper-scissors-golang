@@ -3,31 +3,10 @@ package main
 import (
 	"bytes"
 	"encoding/json"
-	"io"
-	"sync"
-	"websocket_server_rock_paper_scissors/gopool"
 
 	"github.com/gobwas/ws"
 	"github.com/gobwas/ws/wsutil"
-	"github.com/mailru/easygo/netpoll"
 )
-
-type Player struct {
-	Uuid           string
-	io             sync.Mutex
-	conn           io.ReadWriteCloser
-	out            chan []byte
-	pool           *gopool.Pool
-	mu             sync.RWMutex
-	MasterPlayer   bool
-	Choice         int8
-	Score          int
-	RoundScore     int
-	Result         uint8
-	Results        map[uint]Object
-	Nickname       string
-	connDescriptor *netpoll.Desc
-}
 
 // readRequests reads json-rpc request from connection.
 // It takes io mutex.
@@ -54,7 +33,7 @@ func (p *Player) readRequest() (*Request, error) {
 	return req, nil
 }
 
-func (p *Player) writeErrorTo(req *Request, err Object) error {
+func (p *Player) writeErrorTo(req *Request, err string) error {
 	return p.write(Error{
 		ID:    req.ID,
 		Error: err,

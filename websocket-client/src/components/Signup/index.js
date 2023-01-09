@@ -60,14 +60,15 @@ class Signup extends Component {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        Secret: "LET'S_PLAY",
-        Name: 'Yoyo',
-        Rounds: 2,
+        Secret: "LET'S_PLAY"
       }),
     })
       .then(res => res.json())
       .then(ret => {
-        console.log(ret)
+        if(ret.error){
+          console.error(ret.error)
+          return
+        }
         const url = `ws://${window.location.hostname}:${ret.socket_port}`
         /*const p = */new Promise((resolve, reject) => {
           ws = new WebSocket(url)
@@ -91,6 +92,7 @@ class Signup extends Component {
               resolve(ws)
             }
           }
+          const methodKeys = Object.keys(this.handleMethod)
           ws.onmessage = s => {
             let msg
             try {
@@ -102,15 +104,23 @@ class Signup extends Component {
 
             // Notice
             if (msg.id === 0) {
-              if (this.handleMethod[msg.method]) {
-                let params = {}
-                if (msg.params) {
-                  params = msg.params
+              if(msg.method){
+                const method = msg.method
+                if (methodKeys.indexOf(method) >= 0) {
+                  let params = {}
+                  if (msg.params) {
+                    params = msg.params
+                  }
+                  this.handleMethod[method](params)
+                  return
                 }
-                this.handleMethod[msg.method](params)
-                return
+              } else {
+                if(msg.error) {
+                  console.error(msg.error)
+                  this.handleFatalError()
+                }
               }
-              console.warn(`no handler for method: ${msg.method}`)
+              console.warn(`no handler for method`)
               return
             }
 
@@ -190,11 +200,10 @@ class Signup extends Component {
   }
 
   handleFatalError = () => {
-    this.setState({gameState: 'fatal-error'})
+    this.setState({letsGame: false, gameState: 'fatal-error'})
   }
 
   handleYourUuid = data => {
-    console.log('bla')
     this.uuid = data?.uuid
     this.emit('your-uuid-ACK', {params: this.uuid})
   }
@@ -253,6 +262,7 @@ class Signup extends Component {
     'show-final-score': this.handleShowFinalScore,
     result: this.handleResult,
     'restart-game': this.handleRestartGame,
+    'fatal-error': this.handleFatalError,
   }
 
   emit = (method, parameters) => {

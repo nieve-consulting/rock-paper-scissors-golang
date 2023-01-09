@@ -21,12 +21,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type connectionInstance struct {
-	Secret string
-	Name   string
-	Rounds int8
-}
-
 const SECRET string = "LET'S_PLAY"
 const SOCKET_PORT string = "4001"
 
