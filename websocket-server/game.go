@@ -26,27 +26,6 @@ var gameStates = []string{
 
 var rounds uint = 1
 
-type Game struct {
-	//mu sync.RWMutex --> MOVED TO PLAYER
-	//numberOfPlayers uint
-	players                    map[string]*Player
-	playersRemaining           int8
-	rounds                     int
-	currentState               string
-	restartGamePlayersNotified uint
-	results                    map[int]Result
-
-	pool   *gopool.Pool
-	poller *netpoll.Poller
-}
-
-type Result struct {
-	A    string
-	B    string
-	win  string
-	lose string
-}
-
 func initGame(pool *gopool.Pool, poller *netpoll.Poller) *Game {
 	game := &Game{
 		pool:                       pool,
