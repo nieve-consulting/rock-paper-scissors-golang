@@ -65,7 +65,10 @@ class Signup extends Component {
     })
       .then(res => res.json())
       .then(ret => {
-        console.log(ret)
+        if(ret.error){
+          console.error(ret.error)
+          return
+        }
         const url = `ws://${window.location.hostname}:${ret.socket_port}`
         /*const p = */new Promise((resolve, reject) => {
           ws = new WebSocket(url)
